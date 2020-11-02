@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+       <script src="libs/echarts.min.js"></script>
+       <script src="https://d3js.org/d3.v6.min.js"></script>
+       <title>
+           E-chart Tree Map
+       </title>
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript">
+
+       let data =[
+           {"parentColumn": "",  "childColumn":"A"},
+           {"parentColumn": "A", "childColumn":"B"},
+           {"parentColumn": "A", "childColumn":"C"},
+           {"parentColumn": "B", "childColumn":"D","val":30},
+           {"parentColumn": "B", "childColumn":"E","val":50},
+           {"parentColumn": "C", "childColumn":"F","val":20},
+           {"parentColumn": "C", "childColumn":"G","val":40},
+           {"parentColumn": "C", "childColumn":"H","val":60}
+       ]
+
+       let  stratify_function= d3.stratify()
+           .id(d => d["childColumn"])
+           .parentId(d => d["parentColumn"])
+
+       let data_formatted = stratify_function(data)
+       function jsonformat(j) {
+           if (j.children != undefined) {
+             let children = [];
+             for (i in j.children) {
+                 children[i] = jsonformat(j.children[i]);
+             }
+             return {"name": j.id, "children": children}
+           } else {
+             return {"name": j.id, "value": j.data.val}
+           }
+       }
+       data_json = [jsonformat(data_formatted)];
+
+
+    let dom = document.getElementById("container"); // select container
+    let treeMap = echarts.init(dom); // initiate echarts object
+    treeMap.setOption({             // define type of visualization
+        series: [
+            {
+                type: 'treemap', // visualization type
+                data: data_json,     // data
+                label: {        // show or hide labels
+                    show: true,
+                    formatter: '{b}'
+                },
+            }
+        ]
+    },true)
+
+       </script>
+   </body>
+</html>
